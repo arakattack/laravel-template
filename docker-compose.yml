@@ -1,0 +1,147 @@
+version: "3"
+
+networks:
+  network:
+    driver: bridge
+
+services:
+  app:
+    depends_on:
+      - postgres
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - network
+    links:
+      - postgres
+      #- elasticsearch
+      #- mysql
+    #    logging:
+    #      driver: awslogs
+    #      options:
+    #        awslogs-region: "us-east-1"
+    #        awslogs-group: "laravel"
+    #        awslogs-create-group: "true"
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        "php artisan migrate && php-fpm -D | tail -f storage/logs/laravel.log",
+      ]
+  # elasticsearch:
+  #   image: elasticsearch:5.5
+  #   #    logging:
+  #   #      driver: awslogs
+  #   #      options:
+  #   #        awslogs-region: "us-east-1"
+  #   #        awslogs-group: "elasticsearch"
+  #   #        awslogs-create-group: "true"
+  #   networks:
+  #     - network
+
+  #   cron:
+  #     build:
+  #       context: .
+  #       dockerfile: Dockerfile
+  # #    logging:
+  # #      driver: awslogs
+  # #      options:
+  # #        awslogs-region: "us-east-1"
+  # #        awslogs-group: "laravel-cron"
+  # #        awslogs-create-group: "true"
+  #     command: ["/bin/sh", "-c", "env /bin/bash -o posix -c 'export -p' > /etc/cron.d/project_env.sh && chmod +x /etc/cron.d/project_env.sh && crontab /etc/cron.d/artisan-schedule-run && cron && tail -f /var/log/cron.log"]
+  #     networks:
+  #         - network
+  #     env_file:
+  #         - docker-compose.env
+
+  worker:
+    depends_on:
+      - redis
+    build:
+      context: .
+      dockerfile: Dockerfile
+    #    logging:
+    #      driver: awslogs
+    #      options:
+    #        awslogs-region: "us-east-1"
+    #        awslogs-group: "laravel-worker"
+    #        awslogs-create-group: "true"
+    command: ["php", "artisan", "queue:work"]
+    networks:
+      - network
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - network
+    #    logging:
+    #      driver: awslogs
+    #      options:
+    #        awslogs-region: "us-east-1"
+    #        awslogs-group: "nginx"
+    #        awslogs-create-group: "true"
+    links:
+      - app
+
+  postgres:
+    image: postgres:9.6
+    #    logging:
+    #      driver: awslogs
+    #      options:
+    #        awslogs-region: "us-east-1"
+    #        awslogs-group: "postgresql"
+    #        awslogs-create-group: "true"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=rahasia123
+    networks:
+      - network
+
+  #  mysql:
+  #    image: mysql:5.7
+  #    logging:
+  #      driver: awslogs
+  #      options:
+  #        awslogs-region: "us-east-1"
+  #        awslogs-group: "postgresql"
+  #        awslogs-create-group: "true"
+  # volumes:
+  #   - mydata:/var/lib/mysql
+  # ports:
+  #   - "3306:3306"
+  # environment:
+  #   - MYSQL_DATABASE=homestead
+  #   - MYSQL_USER=homestead
+  #   - MYSQL_PASSWORD=secret
+  #   - MYSQL_ROOT_PASSWORD=secret
+  #   - MYSQL_HOST=mysql
+  # env_file:
+  #     - docker-compose.env
+  # networks:
+  #   - network
+
+  redis:
+    image: "redis:4-alpine"
+    command: redis-server --requirepass rahasia123
+    ports:
+      - "6379:6379"
+    networks:
+      - network
+
+volumes:
+  pgdata:
+    driver: local
+  # mydata:
+  #   driver: local
