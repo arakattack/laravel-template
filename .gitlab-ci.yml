@@ -6,8 +6,6 @@
 # Only needed when using a docker container to run your tests in.
 # Check out: http://docs.gitlab.com/ce/ci/docker/using_docker_images.html#what-is-a-service
 
-
-
 stages:
   - test
   - build
@@ -15,13 +13,13 @@ stages:
 #  - release
 
 variables:
-    DB_CONNECTION: pgsql
-    DB_HOST: pgsql
-    DB_PORT: 5432
-    DB_DATABASE: postgres
-    DB_USERNAME: postgres
-    DB_PASSWORD: password
-    
+  DB_CONNECTION: pgsql
+  DB_HOST: pgsql
+  DB_PORT: 5432
+  DB_DATABASE: postgres
+  DB_USERNAME: postgres
+  DB_PASSWORD: password
+
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
@@ -29,10 +27,10 @@ cache:
 
 codestyle:
   stage: test
-  image: registry.ipaymu.app/arakattack/laravel-deployer:latest
+  image: registry.ipaymu.com/arakattack/laravel-deployer:latest
   cache: {}
   script:
-# Scripts must follow coding standar guidelines, please read https://php7.org/guidelines/  
+    # Scripts must follow coding standar guidelines, please read https://php7.org/guidelines/
 
     - echo "Mess Detection"
     #- phpmd app text codesize,unusedcode,naming
@@ -43,13 +41,11 @@ codestyle:
     - echo "Code Sniffer"
     #- phpcs --standard=psr2 app
 
-
-    
 phpunit:
   stage: test
-  image: registry.ipaymu.app/arakattack/laravel-deployer:latest
+  image: registry.ipaymu.com/arakattack/laravel-deployer:latest
   services:
-  - postgres:10.6
+    - postgres:10.6
 
   variables:
     DB_CONNECTION: pgsql
@@ -58,7 +54,7 @@ phpunit:
     DB_DATABASE: postgres
     DB_USERNAME: postgres
     DB_PASSWORD: password
-    
+
   script:
     - composer self-update
     - composer install --prefer-dist --no-ansi --no-interaction
@@ -66,16 +62,16 @@ phpunit:
     - php artisan key:generate
     - php artisan config:cache
 
-  # Run database migrations.
+    # Run database migrations.
     - php artisan migrate
 
-  # Run database seed
+    # Run database seed
     - php artisan db:seed
-  
+
     - php artisan vendor:publish --all
     - php artisan storage:link
     - composer dump-autoload
-    
+
     # PHPUnit
     #- echo "Running PHPUnit Tests"
     #- phpunit --colors --debug
@@ -92,4 +88,3 @@ build-master:
     - docker push "$CI_REGISTRY_IMAGE"
   only:
     - master
-
