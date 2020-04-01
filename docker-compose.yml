@@ -17,6 +17,7 @@ services:
       - network
     links:
       - postgres
+      - redis
       #- elasticsearch
       #- mysql
     #    logging:
@@ -93,7 +94,7 @@ services:
       - app
 
   postgres:
-    image: postgres:10.6
+    image: postgres:9.6
     #    logging:
     #      driver: awslogs
     #      options:

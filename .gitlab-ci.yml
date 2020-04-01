@@ -9,8 +9,8 @@
 stages:
   - test
   - build
-#  - deploy
-#  - release
+  - deploy
+  - release
 
 variables:
   DB_CONNECTION: pgsql
@@ -89,29 +89,45 @@ build-master:
   only:
     - master
 
-deploy:
+step-deploy-staging:
   stage: deploy
-  services:
-    - docker:dind
-  image: docker
   before_script:
-    - apk add --update py-pip
-    - pip install docker-compose
-
+    - export DYNAMIC_ENV_VAR=STAGING
+  only:
+    - staging
+  tags:
+    - staging
   script:
-    - mkdir $DOCKER_CERT_PATH
-    - echo "$CA" > $DOCKER_CERT_PATH/ca.pem
-    - echo "$CLIENT_CERT" > $DOCKER_CERT_PATH/cert.pem
-    - echo "$CLIENT_KEY" > $DOCKER_CERT_PATH/key.pem
-    - docker-compose build
-    - docker-compose down
-    - docker-compose up -d --force-recreate
-    - rm -rf $DOCKER_CERT_PATH
+    - echo setting up env $DYNAMIC_ENV_VAR
+    - chmod 700 ./swapon.sh
+    - ./swapon.sh
+    - sudo apt-get install -y python-pip
+    - sudo pip install docker-compose
+    - sudo docker system prune -af
+    - sudo docker-compose -f docker-compose.yml build --no-cache
+    - sudo docker-compose -f docker-compose.yml up -d
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://$CI_COMMIT_REF_NAME.example.com
+
+step-deploy-production:
+  stage: release
+  before_script:
+    - export DYNAMIC_ENV_VAR=PRODUCTION
   only:
     - master
-  variables:
-    DOCKER_TLS_VERIFY: "1"
-    DOCKER_HOST: "tcp://[YOUR_INSTANCE_IP]:2376"
-    DOCKER_CERT_PATH: "certs"
   tags:
-    - docker
+    - master
+  script:
+    - echo setting up env $DYNAMIC_ENV_VAR
+    - chmod 700 ./swapon.sh
+    - ./swapon.sh
+    - sudo apt-get install -y python-pip
+    - sudo pip install docker-compose
+    - sudo docker system prune -af
+    - sudo docker-compose -f docker-compose.yml build --no-cache
+    - sudo docker-compose -f docker-compose.yml up -d
+  environment:
+    name: live/$CI_COMMIT_REF_NAME
+    url: https://$CI_COMMIT_REF_NAME.example.com
+  when: manual
