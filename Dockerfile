@@ -7,6 +7,7 @@ WORKDIR /var/www/html
 
 RUN touch storage/logs/laravel.log
 RUN composer global require hirak/prestissimo
+RUN composer require predis/predis
 RUN composer install
 RUN php artisan cache:clear
 RUN php artisan view:clear

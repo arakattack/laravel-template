@@ -8,9 +8,11 @@ services:
   app:
     depends_on:
       - postgres
+      - redis
     build:
       context: .
       dockerfile: Dockerfile
+    restart: on-failure
     networks:
       - network
     links:
@@ -91,7 +93,7 @@ services:
       - app
 
   postgres:
-    image: postgres:9.6
+    image: postgres:10.6
     #    logging:
     #      driver: awslogs
     #      options:
