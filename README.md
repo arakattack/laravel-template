@@ -99,7 +99,7 @@ $ git checkout staging
 $ git add .
 $ git commit -am "penjelasan detil"
 $ git push -o merge_request.create
-`
+```
 
 6. Untuk menyetujui merge request dari branch staging ke branch master, dilakukan melalui gitlab karena deployment ke server production harus menggunakan tombol deploy manual di `pipeline`
 
@@ -124,6 +124,6 @@ Pada saat developer `git push -o merge_request.create`, ada 2 aksi yang dilakuka
 ### Openshift
 Sama dengan Docker Server
 ## Todo Lis
-- [] Hardening script
+- [ ] Hardening script
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
