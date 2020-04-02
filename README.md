@@ -57,17 +57,50 @@ $ ./install.sh
 2. Ganti password yang ditemukan di `.env.example`, `docker-compose.yml`
 3. Edit `.gitlab-ci.yml` bagian `environment url`
 ## Development
+
+### Branch
+Branch digunakan untuk mengatur code WIP (Work In Progress) digunakan untuk mengisolasi kode dalam pengerjaan sebelum dikirim ke staging dan ke master (production).
+#### Branch Developer
+1. Setiap developer harus membuat branch sendiri
+   
 ```bash
-$ git branch staging
-$ git checkout staging
+$ git branch nama-developer
+$ git checkout nama-developer
 ```
 ...coding
+#### Branch Issue/Hotfix
+2. Untuk menghubungkan gitlab issue secara otomatis, buat branch untuk perbaikan tersebut dengan cara membuat branch sesuai id issue yang akan ditangani, contoh: `{id-issue}-nama-issue`
+
 ```bash
+$ git branch 1-login-issue
+$ git checkout 1-login-issue
+```
+...coding
+#### Review /Merge Branch
+3. Untuk mengirimkan code dari branch 1-login-issue ke branch staging, gunakan perintah sebagai berikut:
+```bash
+$ git add .
+$ git commit -am "penjelasan detil"
+$ git push origin 1-login-issue -o merge_request.create -o merge_request.target=staging
+```
+Pada langkah ini, issue otomatis akan diedit menjadi `WIP Nama Issue` dan akan diclose setelah merge.
+4. Untuk menyetujui merge, gunakan perintah sebagai berikut:
+```bash
+$ git checkout staging
+$ git merge 1-login-issue
+```
+>Pada langkah ini, code otomatis dikirimkan ke server staging. Bisa dicek live di https://staging.$domains
+5. Untuk mengirimkan dari branch staging ke branch master, gunakan perintah sebagai berikut:
+```bash
+$ git checkout staging
 $ git add .
 $ git commit -am "penjelasan detil"
 $ git push -o merge_request.create
 ```
-<span style="color:red">Branch master tidak boleh dicheckout untuk diedit karena menggunakan mekanisme merge request.</span>
+6. Untuk menyetujui merge request dari branch staging ke branch master, dilakukan melalui gitlab karena deployment ke server production harus menggunakan tombol deploy manual di `pipeline`.
+>Pada langkah ini, code otomatis dikirimkan ke server production setelah tombol deploy dijalankan. Bisa dicek live di https://$domains
+
+><span style="color:red">Branch master tidak boleh dicheckout untuk diedit karena menggunakan mekanisme merge request.</span>
 ## Deployment
 ### Local
 ```bash

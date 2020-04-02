@@ -18,7 +18,6 @@ else
         mv laravel/* .
         rm -rf laravel
         mv README.md.bak README.md
-        ./init-letsencrypt.sh
         touch .setupdone
     else
         exit 1

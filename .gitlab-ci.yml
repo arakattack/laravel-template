@@ -103,6 +103,7 @@ step-deploy-staging:
     - ./swapon.sh
     - sudo apt-get install -y python-pip
     - sudo pip install docker-compose
+    - ./init-letsencrypt.sh
     - sudo docker system prune -af
     - sudo docker-compose -f docker-compose.yml build --no-cache
     - sudo docker-compose -f docker-compose.yml up -d
@@ -124,6 +125,7 @@ step-deploy-production:
     - ./swapon.sh
     - sudo apt-get install -y python-pip
     - sudo pip install docker-compose
+    - ./init-letsencrypt.sh
     - sudo docker system prune -af
     - sudo docker-compose -f docker-compose.yml build --no-cache
     - sudo docker-compose -f docker-compose.yml up -d
