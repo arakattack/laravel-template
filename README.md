@@ -12,7 +12,8 @@ Laravel Template adalah **full stack project** untuk membangun aplikasi web berb
 Fitur:
 - aplikasi fullstack yang terdiri dari `nginx proxy`, `letsencrypt ssl`, `cron worker`, `php-fpm`, `postgresql`, `redis`.
 - auto devops staging environment untuk review UAT
-- auto devops production environment
+- auto devops production environmen
+- 0 downtime
 
 ## Installation
 
@@ -83,21 +84,25 @@ $ git add .
 $ git commit -am "penjelasan detil"
 $ git push origin 1-login-issue -o merge_request.create -o merge_request.target=staging
 ```
-Pada langkah ini, issue otomatis akan diedit menjadi `WIP Nama Issue` dan akan diclose setelah merge.
+Pada langkah ini, issue otomatis akan diedit menjadi `WIP Nama Issue` dan akan diclose setelah merge
+
 4. Untuk menyetujui merge, gunakan perintah sebagai berikut:
 ```bash
 $ git checkout staging
 $ git merge 1-login-issue
 ```
->Pada langkah ini, code otomatis dikirimkan ke server staging. Bisa dicek live di https://staging.$domains
+>Pada langkah ini, code otomatis dikirimkan ke server staging. Bisa dicek live di https://staging.$domain
+
 5. Untuk mengirimkan dari branch staging ke branch master, gunakan perintah sebagai berikut:
 ```bash
 $ git checkout staging
 $ git add .
 $ git commit -am "penjelasan detil"
 $ git push -o merge_request.create
-```
-6. Untuk menyetujui merge request dari branch staging ke branch master, dilakukan melalui gitlab karena deployment ke server production harus menggunakan tombol deploy manual di `pipeline`.
+`
+
+6. Untuk menyetujui merge request dari branch staging ke branch master, dilakukan melalui gitlab karena deployment ke server production harus menggunakan tombol deploy manual di `pipeline`
+
 >Pada langkah ini, code otomatis dikirimkan ke server production setelah tombol deploy dijalankan. Bisa dicek live di https://$domains
 
 ><span style="color:red">Branch master tidak boleh dicheckout untuk diedit karena menggunakan mekanisme merge request.</span>
@@ -118,6 +123,7 @@ Pada saat developer `git push -o merge_request.create`, ada 2 aksi yang dilakuka
 
 ### Openshift
 Sama dengan Docker Server
-
+## Todo Lis
+- [] Hardening script
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
