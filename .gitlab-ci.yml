@@ -129,5 +129,5 @@ step-deploy-production:
     - sudo docker-compose -f docker-compose.yml up -d
   environment:
     name: live/$CI_COMMIT_REF_NAME
-    url: https://$CI_COMMIT_REF_NAME.example.com
+    url: https://example.com
   when: manual

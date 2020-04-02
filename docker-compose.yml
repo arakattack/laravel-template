@@ -32,6 +32,7 @@ services:
         "-c",
         "php artisan migrate && php-fpm -D | tail -f storage/logs/laravel.log",
       ]
+
   # elasticsearch:
   #   image: elasticsearch:5.5
   #   #    logging:
@@ -79,6 +80,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-nginx
+    image: nginx:1.15-alpine
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
@@ -92,6 +95,18 @@ services:
     #        awslogs-create-group: "true"
     links:
       - app
+    volumes:
+      - ./data/nginx:/etc/nginx/conf.d
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
   postgres:
     image: postgres:9.6
@@ -102,7 +117,7 @@ services:
     #        awslogs-group: "postgresql"
     #        awslogs-create-group: "true"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     environment:
@@ -145,6 +160,10 @@ services:
 
 volumes:
   pgdata:
+    driver: local
+  certs:
+    driver: local
+  certs-data:
     driver: local
   # mydata:
   #   driver: local
